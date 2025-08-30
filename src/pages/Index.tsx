@@ -3,10 +3,34 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Navbar } from "@/components/Navbar";
 import { PricingTiers } from "@/components/PricingTiers";
+import VortexBuilder from "@/components/VortexBuilder";
+import { useAuth } from "@/hooks/useAuth";
 import { Sparkles, Zap, Globe, Brain, Rocket, Star } from "lucide-react";
 import heroImage from "@/assets/hero-bg.jpg";
 
 const Index = () => {
+  const { user, loading } = useAuth();
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-hero flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-12 h-12 border-4 border-primary/30 border-t-primary rounded-full animate-spin mx-auto mb-4" />
+          <p className="text-muted-foreground">Loading Vortex...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (user) {
+    return (
+      <div className="min-h-screen bg-gradient-hero">
+        <Navbar />
+        <VortexBuilder />
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-gradient-hero text-foreground">
       <Navbar />
