@@ -6,7 +6,6 @@ import { PricingTiers } from "@/components/PricingTiers";
 import VortexBuilder from "@/components/VortexBuilder";
 import { useAuth } from "@/hooks/useAuth";
 import { Sparkles, Zap, Globe, Brain, Rocket, Star } from "lucide-react";
-import heroImage from "@/assets/hero-bg.jpg";
 
 const Index = () => {
   const { user, loading } = useAuth();
