@@ -9,6 +9,9 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Separator } from '@/components/ui/separator';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/components/ui/use-toast';
+import SandboxManager from '@/components/Sandbox/SandboxManager';
+import VortexIDE from '@/components/CodeEditor/VortexIDE';
+import ProjectScaffolder from '@/components/ProjectBuilder/ProjectScaffolder';
 import { 
   Brain, 
   Zap, 
@@ -21,7 +24,10 @@ import {
   MicOff,
   Sparkles,
   Cpu,
-  Globe
+  Globe,
+  Layers,
+  Terminal,
+  Rocket
 } from 'lucide-react';
 
 interface Message {
@@ -38,6 +44,7 @@ const VortexBuilder = () => {
   const [loading, setLoading] = useState(false);
   const [selectedAgent, setSelectedAgent] = useState('vortex');
   const [isListening, setIsListening] = useState(false);
+  const [activeView, setActiveView] = useState<'chat' | 'sandbox' | 'ide' | 'scaffold'>('chat');
   const { user, profile, refetchProfile } = useAuth();
   const { toast } = useToast();
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -215,8 +222,47 @@ const VortexBuilder = () => {
             </div>
           </div>
           
+          <div className="flex items-center gap-4">
+            <div className="flex items-center gap-1 bg-card/50 rounded-lg p-1">
+              <Button 
+                size="sm" 
+                variant={activeView === 'chat' ? 'default' : 'ghost'}
+                onClick={() => setActiveView('chat')}
+                className="text-xs"
+              >
+                <Brain className="w-3 h-3 mr-1" />
+                Chat
+              </Button>
+              <Button 
+                size="sm" 
+                variant={activeView === 'scaffold' ? 'default' : 'ghost'}
+                onClick={() => setActiveView('scaffold')}
+                className="text-xs"
+              >
+                <Rocket className="w-3 h-3 mr-1" />
+                Scaffold
+              </Button>
+              <Button 
+                size="sm" 
+                variant={activeView === 'ide' ? 'default' : 'ghost'}
+                onClick={() => setActiveView('ide')}
+                className="text-xs"
+              >
+                <Code className="w-3 h-3 mr-1" />
+                IDE
+              </Button>
+              <Button 
+                size="sm" 
+                variant={activeView === 'sandbox' ? 'default' : 'ghost'}
+                onClick={() => setActiveView('sandbox')}
+                className="text-xs"
+              >
+                <Layers className="w-3 h-3 mr-1" />
+                Sandbox
+              </Button>
+            </div>
+            
           {profile && (
-            <div className="flex items-center gap-4">
               <Badge variant="secondary" className="bg-gradient-primary/10 border-primary/20">
                 <Zap className="w-3 h-3 mr-1" />
                 {profile.credits} Credits
@@ -224,12 +270,15 @@ const VortexBuilder = () => {
               <Badge variant="outline" className="capitalize">
                 {profile.subscription_tier}
               </Badge>
-            </div>
           )}
+          </div>
         </div>
       </div>
 
-      <div className="flex-1 flex">
+      {/* Main Content Area */}
+      <div className="flex-1">
+        {activeView === 'chat' && (
+          <div className="h-full flex">
         {/* Agent Selection */}
         <div className="w-80 border-r border-border/50 bg-card/30 backdrop-blur">
           <div className="p-4">
@@ -404,6 +453,12 @@ const VortexBuilder = () => {
             </div>
           </div>
         </div>
+          </div>
+        )}
+
+        {activeView === 'scaffold' && <ProjectScaffolder />}
+        {activeView === 'ide' && <VortexIDE />}
+        {activeView === 'sandbox' && <SandboxManager />}
       </div>
     </div>
   );
