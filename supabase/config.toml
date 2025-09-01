@@ -1,1 +1,4 @@
 project_id = "cnmdvhajfjirvbaeluha"
+
+[functions.vortex-ai]
+verify_jwt = true

@@ -217,7 +217,6 @@ export const Button: React.FC<ButtonProps> = ({
           <Input 
             placeholder="Search files..." 
             className="h-7 text-xs"
-            prefix={<Search className="w-3 h-3" />}
           />
         </div>
         

@@ -20,7 +20,8 @@ import {
   GitBranch,
   Package,
   Settings,
-  CheckCircle
+  CheckCircle,
+  Eye
 } from 'lucide-react';
 
 interface ProjectTemplate {
