@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useAuth } from "@/hooks/useAuth";
+import { useSubscription } from "@/hooks/useSubscription";
 import { Link } from "react-router-dom";
 import { Brain, Menu, X, User, LogOut, Settings, Bell } from "lucide-react";
 import { useState } from "react";
@@ -16,6 +17,7 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 export const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const { user, signOut, profile } = useAuth();
+  const { getSubscriptionPlan } = useSubscription();
 
   return (
     <nav className="fixed top-0 w-full bg-background/80 backdrop-blur-lg border-b border-border z-50">
@@ -86,7 +88,7 @@ export const Navbar = () => {
                           {user.email?.charAt(0).toUpperCase()}
                         </AvatarFallback>
                       </Avatar>
-                      <span className="text-sm font-medium">{profile?.subscription_tier}</span>
+                      <span className="text-sm font-medium">{getSubscriptionPlan()}</span>
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end" className="w-56">

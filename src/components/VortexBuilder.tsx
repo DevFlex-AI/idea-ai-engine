@@ -7,6 +7,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Progress } from "@/components/ui/progress";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
+import { useSubscription } from "@/hooks/useSubscription";
 import { supabase } from "@/integrations/supabase/client";
 import { 
   Cpu, 
@@ -36,6 +37,7 @@ const VortexBuilder = () => {
   const [credits, setCredits] = useState(100);
   const { toast } = useToast();
   const { user } = useAuth();
+  const { getSubscriptionPlan, isActive } = useSubscription();
   const chatRef = useRef<HTMLDivElement>(null);
 
   const agents = [
@@ -106,6 +108,10 @@ const VortexBuilder = () => {
             <Badge variant="secondary" className="flex items-center gap-2">
               <Zap className="h-4 w-4" />
               {credits} Credits
+            </Badge>
+            <Badge variant="outline" className="flex items-center gap-2">
+              <Cpu className="h-4 w-4" />
+              {getSubscriptionPlan()} Plan
             </Badge>
             <Badge variant="outline" className="flex items-center gap-2">
               <Cpu className="h-4 w-4" />

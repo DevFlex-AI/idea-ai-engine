@@ -2,6 +2,10 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Check, Zap, Crown, Rocket } from "lucide-react";
+import { products } from "@/stripe-config";
+import { useAuth } from "@/hooks/useAuth";
+import { useState } from "react";
+import { useToast } from "@/components/ui/use-toast";
 
 const tiers = [
   {
@@ -19,14 +23,15 @@ const tiers = [
     ],
     icon: Zap,
     color: "tier-free",
-    popular: false
+    popular: false,
+    priceId: null
   },
   {
     name: "Pro",
     credits: "1,000",
-    price: "$29",
+    price: "$100",
     period: "month",
-    description: "For professional developers and small teams",
+    description: "Your are very pro for gettign vortex pro",
     features: [
       "1,000 AI credits monthly",
       "Premium AI models",
@@ -38,14 +43,15 @@ const tiers = [
     ],
     icon: Crown,
     color: "tier-pro",
-    popular: true
+    popular: true,
+    priceId: "price_1S2BGAFo9Nuy6V7lu5e4Z7C5"
   },
   {
     name: "Ultra",
     credits: "1,000,000",
-    price: "$299",
+    price: "$500",
     period: "month",
-    description: "Enterprise-grade solution for scaling businesses",
+    description: "You are so sigma for getting vortex ultra",
     features: [
       "1M AI credits monthly",
       "All AI models + custom",
@@ -59,15 +65,70 @@ const tiers = [
     ],
     icon: Rocket,
     color: "tier-ultra",
-    popular: false
+    popular: false,
+    priceId: "price_1S2BFUFo9Nuy6V7lDaw8AVHx"
   }
 ];
 
 export const PricingTiers = () => {
+  const { user } = useAuth();
+  const { toast } = useToast();
+  const [loading, setLoading] = useState<string | null>(null);
+
+  const handleCheckout = async (priceId: string, tierName: string) => {
+    if (!user) {
+      toast({
+        title: "Authentication Required",
+        description: "Please sign in to purchase a subscription.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    setLoading(priceId);
+
+    try {
+      const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/stripe-checkout`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`,
+        },
+        body: JSON.stringify({
+          price_id: priceId,
+          mode: 'subscription',
+          success_url: `${window.location.origin}/success?session_id={CHECKOUT_SESSION_ID}`,
+          cancel_url: `${window.location.origin}/?canceled=true`,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to create checkout session');
+      }
+
+      if (data.url) {
+        window.location.href = data.url;
+      }
+    } catch (error: any) {
+      console.error('Checkout error:', error);
+      toast({
+        title: "Checkout Error",
+        description: error.message || "Failed to start checkout process",
+        variant: "destructive"
+      });
+    } finally {
+      setLoading(null);
+    }
+  };
+
   return (
     <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
       {tiers.map((tier, index) => {
         const Icon = tier.icon;
+        const isLoading = loading === tier.priceId;
+        
         return (
           <Card 
             key={index} 
@@ -112,8 +173,19 @@ export const PricingTiers = () => {
                   : 'bg-card hover:bg-muted border border-border'
               }`}
               size="lg"
+              onClick={() => tier.priceId && handleCheckout(tier.priceId, tier.name)}
+              disabled={isLoading || !tier.priceId}
             >
-              {tier.price === "$0" ? "Get Started Free" : "Choose Plan"}
+              {isLoading ? (
+                <div className="flex items-center gap-2">
+                  <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                  Processing...
+                </div>
+              ) : tier.price === "$0" ? (
+                "Get Started Free"
+              ) : (
+                "Choose Plan"
+              )}
             </Button>
           </Card>
         );
